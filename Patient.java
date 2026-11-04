@@ -8,9 +8,9 @@
 public class Patient extends Thread {
 
     private int id;              // patient number (1, 2, 3 ...)
-    private WaitingRoom wRoom;   // shared waiting room (the bounded buffer)
+    private WRoom wRoom;         // shared waiting room (the bounded buffer)
 
-    public Patient(int id, WaitingRoom wRoom) {
+    public Patient(int id, WRoom wRoom) {
         this.id = id;
         this.wRoom = wRoom;
         // thread name will be P1, P2 ... so its easy to print it anywhere
