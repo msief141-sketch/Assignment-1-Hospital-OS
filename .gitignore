@@ -1,9 +1,7 @@
 # compiled files
 *.class
 
-# ide / tool stuff
-.claude/
-.claude-flow/
+# ide stuff
 .idea/
 .vscode/
 out/
