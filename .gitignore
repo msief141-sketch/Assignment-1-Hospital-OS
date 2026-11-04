@@ -1,0 +1,13 @@
+# compiled files
+*.class
+
+# ide / tool stuff
+.claude/
+.claude-flow/
+.idea/
+.vscode/
+out/
+bin/
+
+# assignment pdf
+*.pdf
