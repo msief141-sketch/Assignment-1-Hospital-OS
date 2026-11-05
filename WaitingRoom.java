@@ -1,4 +1,3 @@
-/** A bounded-buffer waiting room with patient threads as producers. */
 public class WaitingRoom {
     private final Patient[] buffer;
     private int inIndex;

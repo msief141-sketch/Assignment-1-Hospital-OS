@@ -1,53 +1,46 @@
-/** A small interruptible counting semaphore used by the simulation. */
 public class Semaphore {
-    private int permits;
+    protected int value;
 
     public Semaphore() {
-        this(0);
+        this.value = 0;
     }
 
-    public Semaphore(int initialPermits) {
-        if (initialPermits < 0) {
-            throw new IllegalArgumentException("Semaphore permits cannot be negative.");
-        }
-        permits = initialPermits;
+    public Semaphore(int initial) {
+        this.value = initial;
     }
 
     public synchronized void acquire() throws InterruptedException {
-        while (permits == 0) {
+        while (value <= 0) {
             wait();
         }
-        permits--;
+        value--;
     }
 
     public synchronized void acquire(String waitingMessage) throws InterruptedException {
-        if (permits == 0 && waitingMessage != null) {
+        if (value <= 0 && waitingMessage != null) {
             Hospital.log(waitingMessage);
         }
-        acquire();
+        while (value <= 0) {
+            wait();
+        }
+        value--;
     }
 
     public synchronized boolean tryAcquire(long timeoutMillis) throws InterruptedException {
-        if (timeoutMillis < 0) {
-            throw new IllegalArgumentException("Timeout cannot be negative.");
-        }
-        long deadline = System.nanoTime() + timeoutMillis * 1_000_000L;
-        long remaining = timeoutMillis;
-        while (permits == 0) {
-            if (remaining <= 0) {
+        long end = System.currentTimeMillis() + timeoutMillis;
+        while (value <= 0) {
+            long rem = end - System.currentTimeMillis();
+            if (rem <= 0) {
                 return false;
             }
-            long millis = remaining / 1_000_000L;
-            int nanos = (int) (remaining % 1_000_000L);
-            wait(millis, nanos);
-            remaining = (deadline - System.nanoTime()) / 1_000_000L;
+            wait(rem);
         }
-        permits--;
+        value--;
         return true;
     }
 
     public synchronized void release() {
-        permits++;
+        value++;
         notifyAll();
     }
 }
