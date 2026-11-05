@@ -1,0 +1,11 @@
+# compiled files
+*.class
+
+# ide stuff
+.idea/
+.vscode/
+out/
+bin/
+
+# assignment pdf
+*.pdf
