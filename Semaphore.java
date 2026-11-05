@@ -1,55 +1,53 @@
-class Semaphore {
-    protected int value = 0;
+/** A small interruptible counting semaphore used by the simulation. */
+public class Semaphore {
+    private int permits;
 
     public Semaphore() {
-        value = 0;
+        this(0);
     }
 
-    public Semaphore(int initial) {
-        value = initial;
-    }
-
-    public synchronized void acq() {
-        while (value <= 0) {
-            try {
-                wait();
-            } catch (InterruptedException ex) {
-            }
+    public Semaphore(int initialPermits) {
+        if (initialPermits < 0) {
+            throw new IllegalArgumentException("Semaphore permits cannot be negative.");
         }
-        value--;
+        permits = initialPermits;
     }
 
-    public synchronized void acq(String msg) {
-        if (value <= 0 && msg != null) {
-            System.out.println(msg);
+    public synchronized void acquire() throws InterruptedException {
+        while (permits == 0) {
+            wait();
         }
-        while (value <= 0) {
-            try {
-                wait();
-            } catch (InterruptedException ex) {
-            }
-        }
-        value--;
+        permits--;
     }
 
-    public synchronized boolean tryAcq(long ms) {
-        long end = System.currentTimeMillis() + ms;
-        while (value <= 0) {
-            long rem = end - System.currentTimeMillis();
-            if (rem <= 0) {
+    public synchronized void acquire(String waitingMessage) throws InterruptedException {
+        if (permits == 0 && waitingMessage != null) {
+            Hospital.log(waitingMessage);
+        }
+        acquire();
+    }
+
+    public synchronized boolean tryAcquire(long timeoutMillis) throws InterruptedException {
+        if (timeoutMillis < 0) {
+            throw new IllegalArgumentException("Timeout cannot be negative.");
+        }
+        long deadline = System.nanoTime() + timeoutMillis * 1_000_000L;
+        long remaining = timeoutMillis;
+        while (permits == 0) {
+            if (remaining <= 0) {
                 return false;
             }
-            try {
-                wait(rem);
-            } catch (InterruptedException ex) {
-            }
+            long millis = remaining / 1_000_000L;
+            int nanos = (int) (remaining % 1_000_000L);
+            wait(millis, nanos);
+            remaining = (deadline - System.nanoTime()) / 1_000_000L;
         }
-        value--;
+        permits--;
         return true;
     }
 
-    public synchronized void rel() {
-        value++;
+    public synchronized void release() {
+        permits++;
         notifyAll();
     }
 }
