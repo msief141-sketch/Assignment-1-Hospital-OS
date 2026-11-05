@@ -1,4 +1,3 @@
-/** The department-wide pool of two treatment rooms. */
 public class TreatmentRoom {
     private final Semaphore availableRooms = new Semaphore(2);
 
